@@ -2,9 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Route Service</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-
+    <h1>Weather Route Service</h1>
+    <p>Find out if the weather is fine on your way, wanderer</p>
+    <form action="/route-weather" method="post">
+        <label for="start">Start City:</label>
+        <input type="text" id="start" name="start" placeholder="Start city is ..." required>
+        <label for="end">End City:</label>
+        <input type="text" id="end" name="end" placeholder="End city is ..." required>
+        <button type="submit">Check Weather</button>
+    </form>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <footer>
+        © 2024 Weather Route Service
+    </footer>
 </body>
 </html>
