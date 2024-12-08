@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 API_KEY = "RUHsTC8pTBp0L74bBGtnFV86G77yGCGZ"
 BASE_URL = "http://dataservice.accuweather.com/"
@@ -123,6 +123,7 @@ def forecast_one(location_key): # добавила прогноз погоды �
 
 @app.route('/')
 def home():
+    # Отображение главной страницы
     return render_template('index.html')
 
 
@@ -198,3 +199,5 @@ def route_weather():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+

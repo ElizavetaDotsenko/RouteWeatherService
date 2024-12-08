@@ -1,9 +1,9 @@
 /* Основной стиль для страницы */
 body {
-    background-image: url('background_picture.jpg'); /* Фоновая картинка */
+    background-image: url('background_picture.jpg');
     background-size: cover;
     background-attachment: fixed;
-    color: #ffffff; /* Белый текст для эстетики */
+    color: #ffffff;
     margin: 0;
     padding: 0;
     display: flex;
@@ -15,7 +15,7 @@ body {
 h1 {
     margin-top: 50px;
     text-align: center;
-    font-size: 3em;
+    font-size: 4em;
     color: #ffffff;
     font-weight: bold;
 }
@@ -24,8 +24,9 @@ h1 {
 p {
     text-align: center;
     color: #ffffff;
-    font-size: 1.5em;
+    font-size: 2em;
     margin-bottom: 40px;
+    font-weight: bold;
 }
 
 /* Форма */
@@ -42,86 +43,97 @@ form input {
     background: transparent;
     color: #ffffff;
     border: none;
-    border-bottom: 2px solid #ffffff;
-    padding: 10px;
-    font-size: 1.2em;
+    border-bottom: 3px solid #ffffff;
+    padding: 15px;
+    font-size: 1.5em;
     outline: none;
     text-align: center;
+    font-weight: bold;
 }
 
 form input::placeholder {
     color: #ffffff;
     opacity: 0.7;
+    font-weight: bold;
 }
 
 /* Кнопка */
 form button {
     background: none;
     color: #ffffff;
-    border: 2px solid #ffffff;
-    padding: 10px 20px;
+    border: 3px solid #ffffff;
+    padding: 15px 25px;
     border-radius: 5px;
-    font-size: 1.2em;
+    font-size: 1.5em;
     cursor: pointer;
+    font-weight: bold;
     transition: all 0.3s ease;
 }
 
-/* поведение кнопки при наведении */
 form button:hover {
     background-color: #ffffff;
     color: #800080;
+}
 
-/* Ошибки красным */
+/* Стиль ошибок */
 .error {
     color: #ff4d4d;
-    font-size: 1.2em;
+    font-size: 1.5em;
     text-align: center;
     margin-top: 20px;
     font-weight: bold;
 }
 
-/* footer снизу официальный */
+/* Футер */
 footer {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 30px;
     color: #ffffff;
-    font-size: 1em;
+    font-size: 1.2em;
+    font-weight: bold;
 }
+
 /* Метки для полей ввода */
 form label {
-    font-size: 1.5em;
+    font-size: 2em;
     color: #ffffff;
     font-weight: bold;
     text-align: center;
     display: block;
 }
+
 /* Контейнер для результатов */
 .results-container {
-    display: flex; /*расположение колонок */
+    display: flex;
     justify-content: space-between;
     gap: 20px;
     width: 80%;
     margin: 20px auto;
+    flex-wrap: wrap;
 }
 
 /* Стиль для каждой колонки */
 .results-column {
     width: 45%;
     background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
-    font-size: 1em;
+    font-size: 1.2em;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Заголовок в колонках */
 .results-column h2 {
     text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 10px;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    font-weight: bold;
 }
 
 /* Текст в колонках */
 .results-column p {
-    font-size: 0.9em;
-    line-height: 1.4;
+    font-size: 1.2em;
+    line-height: 1.6;
+    font-weight: bold;
 }
