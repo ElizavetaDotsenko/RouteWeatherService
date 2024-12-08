@@ -23,6 +23,32 @@ def coordinates_by_city(city): #получаем координаты город
     except requests.RequestException as e:
         return None, f"API error for city '{city}': {e}"  #если проблемы с API
 
+def weather_by_location(location_key): # Получаем данные о погоде по ключу города
+    try:
+        url = f"{BASE_URL}currentconditions/v1/{location_key}"
+        params = {
+            "apikey": API_KEY,
+            "details": "true"  # Запрашиваем полные данные
+        }
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data:
+            return None, "Weather data not found"
+
+        weather = data[0]
+        result = {
+            "weather_text": weather["WeatherText"],
+            "temperature_celsius": weather["Temperature"]["Metric"]["Value"], #правильный вывод
+            "humidity": weather.get("RelativeHumidity"),
+            "wind_speed_kmh": weather.get("Wind", {}).get("Speed", {}).get("Metric", {}).get("Value"),
+            "precipitation_probability": weather.get("PrecipitationProbability", "Not available")  # Вероятность осадков
+        }
+        return result, None
+    except requests.RequestException as e:
+        return None, str(e)
+
 
 @app.route('/')
 def home():
