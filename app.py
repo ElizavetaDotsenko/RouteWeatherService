@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+API_KEY = "RUHsTC8pTBp0L74bBGtnFV86G77yGCGZ"
+BASE_URL = "http://dataservice.accuweather.com/"
+
 @app.route('/')
 def home():
     return render_template('index.html')
