@@ -1,0 +1,127 @@
+/* Основной стиль для страницы */
+body {
+    background-image: url('background_picture.jpg'); /* Фоновая картинка */
+    background-size: cover;
+    background-attachment: fixed;
+    color: #ffffff; /* Белый текст для эстетики */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Заголовок */
+h1 {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 3em;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Подзаголовок */
+p {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.5em;
+    margin-bottom: 40px;
+}
+
+/* Форма */
+form {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 300px;
+}
+
+/* Поля ввода */
+form input {
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    border-bottom: 2px solid #ffffff;
+    padding: 10px;
+    font-size: 1.2em;
+    outline: none;
+    text-align: center;
+}
+
+form input::placeholder {
+    color: #ffffff;
+    opacity: 0.7;
+}
+
+/* Кнопка */
+form button {
+    background: none;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* поведение кнопки при наведении */
+form button:hover {
+    background-color: #ffffff;
+    color: #800080;
+
+/* Ошибки красным */
+.error {
+    color: #ff4d4d;
+    font-size: 1.2em;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+/* footer снизу официальный */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #ffffff;
+    font-size: 1em;
+}
+/* Метки для полей ввода */
+form label {
+    font-size: 1.5em;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    display: block;
+}
+/* Контейнер для результатов */
+.results-container {
+    display: flex; /*расположение колонок */
+    justify-content: space-between;
+    gap: 20px;
+    width: 80%;
+    margin: 20px auto;
+}
+
+/* Стиль для каждой колонки */
+.results-column {
+    width: 45%;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1em;
+}
+
+/* Заголовок в колонках */
+.results-column h2 {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* Текст в колонках */
+.results-column p {
+    font-size: 0.9em;
+    line-height: 1.4;
+}

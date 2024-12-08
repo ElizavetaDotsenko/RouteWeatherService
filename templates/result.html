@@ -2,9 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Analysis Result</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-
+    <h1>Weather Analysis Result</h1>
+    <div class="results-container">
+        <!-- Колонка Start City -->
+        <div class="results-column">
+            <h2>Start City: {{ start_city }}</h2>
+            <p><strong>Weather:</strong> {{ start_weather.weather_text }}</p>
+            <p><strong>Temperature:</strong> {{ start_weather.temperature_celsius }}°C</p>
+            <p><strong>Humidity:</strong> {{ start_weather.humidity }}%</p>
+            <p><strong>Wind Speed:</strong> {{ start_weather.wind_speed_kmh }} km/h</p>
+            <p><strong>Precipitation Probability (1 Hour):</strong> {{ start_precipitation_probability }}%</p>
+            <p><strong>Analysis:</strong> {{ start_analysis }}</p>
+            <h3>Forecast (1 Day):</h3>
+            <p><strong>Date:</strong> {{ start_forecast.date }}</p>
+            <p><strong>Average Temp:</strong> {{ start_forecast.avg_temp }}°C</p>
+            <p><strong>Day:</strong> {{ start_forecast.day_text }}</p>
+            <p><strong>Night:</strong> {{ start_forecast.night_text }}</p>
+            <p><strong>Analysis:</strong> {{ start_forecast.analysis }}</p>
+        </div>
+        <!-- Колонка End City -->
+        <div class="results-column">
+            <h2>End City: {{ end_city }}</h2>
+            <p><strong>Weather:</strong> {{ end_weather.weather_text }}</p>
+            <p><strong>Temperature:</strong> {{ end_weather.temperature_celsius }}°C</p>
+            <p><strong>Humidity:</strong> {{ end_weather.humidity }}%</p>
+            <p><strong>Wind Speed:</strong> {{ end_weather.wind_speed_kmh }} km/h</p>
+            <p><strong>Precipitation Probability (1 Hour):</strong> {{ end_precipitation_probability }}%</p>
+            <p><strong>Analysis:</strong> {{ end_analysis }}</p>
+            <h3>Forecast (1 Day):</h3>
+            <p><strong>Date:</strong> {{ end_forecast.date }}</p>
+            <p><strong>Average Temp:</strong> {{ end_forecast.avg_temp }}°C</p>
+            <p><strong>Day:</strong> {{ end_forecast.day_text }}</p>
+            <p><strong>Night:</strong> {{ end_forecast.night_text }}</p>
+            <p><strong>Analysis:</strong> {{ end_forecast.analysis }}</p>
+        </div>
+    </div>
+    <footer>
+        <!-- Ну чтобы официально все было -->
+        © 2024 Weather Route Service
+    </footer>
 </body>
 </html>
