@@ -1,5 +1,8 @@
 import requests
 from flask import Flask, render_template, request, jsonify
+from dash import Dash, dcc, html
+import dash_bootstrap_components as dbc
+
 
 app = Flask(__name__, static_folder='static')
 
@@ -195,7 +198,20 @@ def route_weather():
     except Exception as e:
         return render_template('index.html', error="An unexpected error occurred.")
 
+from dash import Input, Output
 
+# Настраиваю приложение Dash
+app_dash = Dash(
+    __name__,
+    server=app,  # Использую Flask как сервер
+    routes_pathname_prefix="/dashboard/",
+    external_stylesheets=[dbc.themes.BOOTSTRAP]  # Подключаю Bootstrap
+)
+
+app_dash.layout = dbc.Container([
+    html.H1("Weather Route Dashboard", className="text-center my-4"),
+    html.Div("Визуализация погоды в пути"),
+])
 
 if __name__ == '__main__':
     app.run(debug=True)
