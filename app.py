@@ -210,8 +210,46 @@ app_dash = Dash(
 
 app_dash.layout = dbc.Container([
     html.H1("Weather Route Dashboard", className="text-center my-4"),
-    html.Div("Визуализация погоды в пути"),
-])
+
+    dbc.Row([
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H4("Выбор маршрута", className="card-title"),
+                dcc.Dropdown(
+                    id="route-selector",
+                    options=[
+                        {"label": "Первый маршрут", "value": "route1"},
+                        {"label": "Второй маршрут", "value": "route2"},
+                    ],
+                    placeholder="Выберите маршрут"
+                )
+            ])
+        ]), width=4),
+
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H4("График температуры", className="card-title"),
+                dcc.Graph(id="temperature-graph")
+            ])
+        ]), width=8),
+    ], className="mb-4"),
+
+    dbc.Row([
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H4("График осадков", className="card-title"),
+                dcc.Graph(id="precipitation-graph")
+            ])
+        ]), width=6),
+
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H4("График ветра", className="card-title"),
+                dcc.Graph(id="wind-graph")
+            ])
+        ]), width=6),
+    ])
+], fluid=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
