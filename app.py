@@ -13,7 +13,7 @@ dash_app = Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-API_KEY = "0ETBDN5MCtwn1PGcDvxQowlPg5s126d2"
+API_KEY = "INmBZUWrxDx1TJIUE3kOHCt5KAm7a1PG"
 BASE_URL = "http://dataservice.accuweather.com/"
 
 
@@ -151,7 +151,6 @@ dash_app.layout = dbc.Container([
     ]),
 ])
 
-
 @dash_app.callback(
     Output("stops-container", "children"),
     Input("add-stop-button", "n_clicks"),
@@ -169,6 +168,8 @@ def add_stop(n_clicks, children):
     children.append(new_input)
     return children
 
+
+# ЕДИНЫЙ КОЛБЭК
 @dash_app.callback(
     [
         Output("error-message", "children"),
@@ -184,6 +185,7 @@ def add_stop(n_clicks, children):
     ]
 )
 def update_all(start_city, end_city, stops_children, interval, selected_metric):
+
     empty_figure = {
         "data": [],
         "layout": {"title": "No data available"}
@@ -191,7 +193,6 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
 
     if not start_city or not end_city:
         return ("Please enter both start and end cities.", empty_figure, empty_figure)
-
 
     stop_cities = []
     if stops_children:
@@ -220,7 +221,6 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
             "lat": lat,
             "lon": lon
         })
-
 
     forecast_traces = []
     for entry in route_data:
@@ -307,4 +307,3 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
