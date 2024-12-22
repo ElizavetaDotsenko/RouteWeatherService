@@ -62,7 +62,6 @@ def get_weather_data(location_key, days):
     except requests.RequestException as e:
         return None, str(e)
 
-
 dash_app.layout = dbc.Container([
     html.H1("Weather Forecast for Route", className="text-center my-4"),
 
@@ -72,7 +71,8 @@ dash_app.layout = dbc.Container([
                 id="start-city-input",
                 type="text",
                 placeholder="Enter Start City",
-                className="mb-3"
+                className="mb-3",
+                debounce=True
             ), width=4
         ),
         dbc.Col(
@@ -80,7 +80,8 @@ dash_app.layout = dbc.Container([
                 id="end-city-input",
                 type="text",
                 placeholder="Enter End City",
-                className="mb-3"
+                className="mb-3",
+                debounce=True
             ), width=4
         ),
         dbc.Col(
@@ -150,7 +151,7 @@ dash_app.layout = dbc.Container([
     ]),
 ])
 
-# Промежуточные остановки
+
 @dash_app.callback(
     Output("stops-container", "children"),
     Input("add-stop-button", "n_clicks"),
@@ -162,13 +163,11 @@ def add_stop(n_clicks, children):
     new_input = dcc.Input(
         type="text",
         placeholder="Enter Stop City",
-        className="mb-3"
+        className="mb-3",
+        debounce=True
     )
     children.append(new_input)
     return children
-
-
-# ЕДИНЫЙ КОЛБЭК
 
 @dash_app.callback(
     [
@@ -185,10 +184,6 @@ def add_stop(n_clicks, children):
     ]
 )
 def update_all(start_city, end_city, stops_children, interval, selected_metric):
-    """
-    При любом изменении ввода (start_city, end_city, промежуточные, интервал, метрика)
-    пытаемся загрузить данные, построить графики. Без кнопки Submit.
-    """
     empty_figure = {
         "data": [],
         "layout": {"title": "No data available"}
@@ -196,6 +191,7 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
 
     if not start_city or not end_city:
         return ("Please enter both start and end cities.", empty_figure, empty_figure)
+
 
     stop_cities = []
     if stops_children:
@@ -205,7 +201,6 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
             if c.get("props", {}).get("value", "")
         ]
 
-    # список всех городов
     all_cities = [start_city] + stop_cities + [end_city]
 
     route_data = []
@@ -225,6 +220,7 @@ def update_all(start_city, end_city, stops_children, interval, selected_metric):
             "lat": lat,
             "lon": lon
         })
+
 
     forecast_traces = []
     for entry in route_data:
