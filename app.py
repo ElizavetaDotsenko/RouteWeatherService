@@ -12,7 +12,7 @@ dash_app = Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-API_KEY = "771VALDGwFDGW4LqJugHJ3ZPvLjdp9vy"
+API_KEY = "	INmBZUWrxDx1TJIUE3kOHCt5KAm7a1PG"
 BASE_URL = "http://dataservice.accuweather.com/"
 
 def coordinates_by_city(city):
@@ -46,7 +46,7 @@ def get_weather_data(location_key, days):
                 "date": day["Date"],
                 "min_temp": day["Temperature"]["Minimum"]["Value"],
                 "max_temp": day["Temperature"]["Maximum"]["Value"],
-                "has_precipitation": int(has_precipitation)  # Преобразуем в 0 или 1 для графика
+                "has_precipitation": "True" if has_precipitation else "False"  # True/False for the graph
             })
         return forecasts, None
     except requests.RequestException as e:
@@ -86,7 +86,7 @@ dash_app.layout = dbc.Container([
         dbc.Col(html.Button("Submit", id="submit-button", className="btn btn-primary mb-3"), width=12),
     ]),
     dbc.Row([
-        dbc.Col(html.Div(id="error-message", className="text-danger mb-3"), width=12),  # Добавляем место для сообщений об ошибках
+        dbc.Col(html.Div(id="error-message", className="text-danger mb-3"), width=12),
     ]),
     dbc.Row([
         dbc.Col(dcc.Graph(id="start-city-forecast"), width=6),
