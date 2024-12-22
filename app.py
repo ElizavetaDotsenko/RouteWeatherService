@@ -1,6 +1,6 @@
 import requests
 from flask import Flask, render_template
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 
 app = Flask(__name__, static_folder='static')
@@ -12,7 +12,7 @@ dash_app = Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-API_KEY = "	INmBZUWrxDx1TJIUE3kOHCt5KAm7a1PG"
+API_KEY = "INmBZUWrxDx1TJIUE3kOHCt5KAm7a1PG"
 BASE_URL = "http://dataservice.accuweather.com/"
 
 def coordinates_by_city(city):
@@ -46,7 +46,7 @@ def get_weather_data(location_key, days):
                 "date": day["Date"],
                 "min_temp": day["Temperature"]["Minimum"]["Value"],
                 "max_temp": day["Temperature"]["Maximum"]["Value"],
-                "has_precipitation": "True" if has_precipitation else "False"  # True/False for the graph
+                "has_precipitation": int(has_precipitation)  # Преобразуем в 0 или 1 для графика
             })
         return forecasts, None
     except requests.RequestException as e:
@@ -70,6 +70,12 @@ dash_app.layout = dbc.Container([
         ), width=2),
     ]),
     dbc.Row([
+        dbc.Col(html.Button("Add Stop", id="add-stop-button", className="btn btn-secondary mb-3"), width=4),
+    ]),
+    dbc.Row([
+        dbc.Col(html.Div(id="stops-container", children=[]), width=12),  # Контейнер для промежуточных точек
+    ]),
+    dbc.Row([
         dbc.Col(dcc.Dropdown(
             id="metric-dropdown",
             options=[
@@ -89,58 +95,58 @@ dash_app.layout = dbc.Container([
         dbc.Col(html.Div(id="error-message", className="text-danger mb-3"), width=12),
     ]),
     dbc.Row([
-        dbc.Col(dcc.Graph(id="start-city-forecast"), width=6),
-        dbc.Col(dcc.Graph(id="end-city-forecast"), width=6),
+        dbc.Col(dcc.Graph(id="forecast-graph"), width=12),
     ]),
 ])
 
 @dash_app.callback(
-    [Output("start-city-forecast", "figure"), Output("end-city-forecast", "figure"), Output("error-message", "children")],
-    [Input("submit-button", "n_clicks")],
-    [Input("start-city-input", "value"), Input("end-city-input", "value"),
-     Input("interval-dropdown", "value"), Input("metric-dropdown", "value")]
+    Output("stops-container", "children"),
+    Input("add-stop-button", "n_clicks"),
+    State("stops-container", "children")
 )
-def update_graphs(n_clicks, start_city, end_city, interval, selected_metric):
+def add_stop(n_clicks, children):
+    if n_clicks is None:
+        return children
+    new_input = dcc.Input(type="text", placeholder="Enter Stop City", className="mb-3")
+    children.append(new_input)
+    return children
+
+@dash_app.callback(
+    [Output("forecast-graph", "figure"), Output("error-message", "children")],
+    [Input("submit-button", "n_clicks")],
+    [State("start-city-input", "value"), State("end-city-input", "value"),
+     State("stops-container", "children"), State("interval-dropdown", "value"), State("metric-dropdown", "value")]
+)
+def update_graph(n_clicks, start_city, end_city, stops, interval, selected_metric):
     if not start_city or not end_city:
-        return {}, {}, "Please enter both start and end cities."
+        return {}, "Please enter both start and end cities."
 
-    start_location_key, start_error = coordinates_by_city(start_city)
-    if start_error or not start_location_key:
-        return {}, {}, f"Error with start city: {start_error}"
+    stop_cities = [stop.get("props", {}).get("value", "") for stop in stops if stop.get("props", {}).get("value", "")]
+    all_cities = [start_city] + stop_cities + [end_city]
 
-    end_location_key, end_error = coordinates_by_city(end_city)
-    if end_error or not end_location_key:
-        return {}, {}, f"Error with end city: {end_error}"
+    all_data = []
+    for city in all_cities:
+        location_key, error = coordinates_by_city(city)
+        if error or not location_key:
+            return {}, f"Error with city {city}: {error}"
 
-    start_data, start_error = get_weather_data(start_location_key, interval)
-    if start_error or not start_data:
-        return {}, {}, f"Error fetching start city data: {start_error}"
+        city_data, error = get_weather_data(location_key, interval)
+        if error or not city_data:
+            return {}, f"Error fetching data for city {city}: {error}"
 
-    end_data, end_error = get_weather_data(end_location_key, interval)
-    if end_error or not end_data:
-        return {}, {}, f"Error fetching end city data: {end_error}"
+        all_data.append((city, city_data))
 
-    start_dates = [day["date"] for day in start_data]
-    start_values = [day[selected_metric] for day in start_data]
-
-    end_dates = [day["date"] for day in end_data]
-    end_values = [day[selected_metric] for day in end_data]
-
-    start_figure = {
-        "data": [
-            {"x": start_dates, "y": start_values, "type": "scatter", "mode": "lines+markers"}
-        ],
-        "layout": {"title": f"Forecast for {start_city} ({interval} days)"}
+    figure = {
+        "data": [],
+        "layout": {"title": "Weather Forecast for Route", "xaxis": {"title": "Date"}, "yaxis": {"title": selected_metric}}
     }
 
-    end_figure = {
-        "data": [
-            {"x": end_dates, "y": end_values, "type": "scatter", "mode": "lines+markers"}
-        ],
-        "layout": {"title": f"Forecast for {end_city} ({interval} days)"}
-    }
+    for city, data in all_data:
+        dates = [day["date"] for day in data]
+        values = [day[selected_metric] for day in data]
+        figure["data"].append({"x": dates, "y": values, "type": "scatter", "mode": "lines+markers", "name": city})
 
-    return start_figure, end_figure, ""
+    return figure, ""
 
 if __name__ == '__main__':
     app.run(debug=True)
