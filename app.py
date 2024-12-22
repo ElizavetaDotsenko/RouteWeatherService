@@ -14,6 +14,7 @@ dash_app = Dash(
 
 API_KEY = "INmBZUWrxDx1TJIUE3kOHCt5KAm7a1PG"
 BASE_URL = "http://dataservice.accuweather.com/"
+data_store = []
 
 def coordinates_by_city(city):
     try:
@@ -46,12 +47,13 @@ def get_weather_data(location_key, days):
                 "date": day["Date"],
                 "min_temp": day["Temperature"]["Minimum"]["Value"],
                 "max_temp": day["Temperature"]["Maximum"]["Value"],
-                "has_precipitation": int(has_precipitation)  # Преобразуем в 0 или 1 для графика
+                "has_precipitation": int(has_precipitation)
             })
         return forecasts, None
     except requests.RequestException as e:
         return None, str(e)
 
+# Layout
 dash_app.layout = dbc.Container([
     html.H1("Weather Forecast for Route", className="text-center my-4"),
     dbc.Row([
@@ -73,7 +75,7 @@ dash_app.layout = dbc.Container([
         dbc.Col(html.Button("Add Stop", id="add-stop-button", className="btn btn-secondary mb-3"), width=4),
     ]),
     dbc.Row([
-        dbc.Col(html.Div(id="stops-container", children=[]), width=12),  # Контейнер для промежуточных точек
+        dbc.Col(html.Div(id="stops-container", children=[]), width=12),
     ]),
     dbc.Row([
         dbc.Col(dcc.Dropdown(
@@ -99,6 +101,7 @@ dash_app.layout = dbc.Container([
     ]),
 ])
 
+# Add stops callback
 @dash_app.callback(
     Output("stops-container", "children"),
     Input("add-stop-button", "n_clicks"),
@@ -111,20 +114,23 @@ def add_stop(n_clicks, children):
     children.append(new_input)
     return children
 
+# Submit callback
 @dash_app.callback(
-    [Output("forecast-graph", "figure"), Output("error-message", "children")],
-    [Input("submit-button", "n_clicks")],
+    [Output("forecast-graph", "data"), Output("error-message", "children")],
+    Input("submit-button", "n_clicks"),
     [State("start-city-input", "value"), State("end-city-input", "value"),
-     State("stops-container", "children"), State("interval-dropdown", "value"), State("metric-dropdown", "value")]
+     State("stops-container", "children"), State("interval-dropdown", "value")]
 )
-def update_graph(n_clicks, start_city, end_city, stops, interval, selected_metric):
+def load_data(n_clicks, start_city, end_city, stops, interval):
     if not start_city or not end_city:
         return {}, "Please enter both start and end cities."
 
     stop_cities = [stop.get("props", {}).get("value", "") for stop in stops if stop.get("props", {}).get("value", "")]
     all_cities = [start_city] + stop_cities + [end_city]
 
-    all_data = []
+    global data_store
+    data_store = []  # Clear existing data
+
     for city in all_cities:
         location_key, error = coordinates_by_city(city)
         if error or not location_key:
@@ -134,19 +140,36 @@ def update_graph(n_clicks, start_city, end_city, stops, interval, selected_metri
         if error or not city_data:
             return {}, f"Error fetching data for city {city}: {error}"
 
-        all_data.append((city, city_data))
+        data_store.append((city, city_data))
+
+    return {}, ""
+
+# Metric change callback
+@dash_app.callback(
+    Output("forecast-graph", "figure"),
+    Input("metric-dropdown", "value")
+)
+def update_graph(selected_metric):
+    global data_store
+    if not data_store:
+        return {
+            "data": [],
+            "layout": {"title": "Error: No data available. Please submit your cities first."}
+        }
 
     figure = {
         "data": [],
         "layout": {"title": "Weather Forecast for Route", "xaxis": {"title": "Date"}, "yaxis": {"title": selected_metric}}
     }
 
-    for city, data in all_data:
+    for city, data in data_store:
         dates = [day["date"] for day in data]
         values = [day[selected_metric] for day in data]
         figure["data"].append({"x": dates, "y": values, "type": "scatter", "mode": "lines+markers", "name": city})
 
-    return figure, ""
+    return figure
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
