@@ -12,7 +12,7 @@ dash_app = Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-API_KEY = "kG8ERWGHZjndfaM31iVkGlfPUqHGkq9p"
+API_KEY = "771VALDGwFDGW4LqJugHJ3ZPvLjdp9vy"
 BASE_URL = "http://dataservice.accuweather.com/"
 
 def coordinates_by_city(city):
@@ -28,7 +28,7 @@ def coordinates_by_city(city):
     except requests.RequestException as e:
         return None, f"API error: {e}"
 
-def get_weather_data(location_key, days): #Получает данные о погоде для указанного количества дней
+def get_weather_data(location_key, days):
     try:
         url = f"{BASE_URL}forecasts/v1/daily/5day/{location_key}"
         params = {"apikey": API_KEY, "metric": "true"}
@@ -40,16 +40,13 @@ def get_weather_data(location_key, days): #Получает данные о по
             return None, "Weather data not found"
 
         forecasts = []
-        for day in data["DailyForecasts"][:days]:  # Берем данные только на указанный интервал
+        for day in data["DailyForecasts"][:days]:
+            has_precipitation = day["Day"].get("HasPrecipitation", False) or day["Night"].get("HasPrecipitation", False)
             forecasts.append({
                 "date": day["Date"],
                 "min_temp": day["Temperature"]["Minimum"]["Value"],
                 "max_temp": day["Temperature"]["Maximum"]["Value"],
-                "wind_speed": day["Day"].get("Wind", {}).get("Speed", {}).get("Value", 0),
-                "precipitation_probability": max(
-                    day["Day"].get("PrecipitationProbability", 0),
-                    day["Night"].get("PrecipitationProbability", 0)
-                ),
+                "has_precipitation": int(has_precipitation)  # Преобразуем в 0 или 1 для графика
             })
         return forecasts, None
     except requests.RequestException as e:
@@ -67,7 +64,7 @@ dash_app.layout = dbc.Container([
                 {"label": "3 Days", "value": 3},
                 {"label": "5 Days", "value": 5},
             ],
-            value=3,  # Значение по умолчанию
+            value=3,
             clearable=False,
             className="mb-3"
         ), width=2),
@@ -78,8 +75,7 @@ dash_app.layout = dbc.Container([
             options=[
                 {"label": "Min Temperature (°C)", "value": "min_temp"},
                 {"label": "Max Temperature (°C)", "value": "max_temp"},
-                {"label": "Wind Speed (km/h)", "value": "wind_speed"},
-                {"label": "Precipitation Probability (%)", "value": "precipitation_probability"},
+                {"label": "Has Precipitation", "value": "has_precipitation"},
             ],
             value="max_temp",
             clearable=False,
@@ -90,36 +86,39 @@ dash_app.layout = dbc.Container([
         dbc.Col(html.Button("Submit", id="submit-button", className="btn btn-primary mb-3"), width=12),
     ]),
     dbc.Row([
+        dbc.Col(html.Div(id="error-message", className="text-danger mb-3"), width=12),  # Добавляем место для сообщений об ошибках
+    ]),
+    dbc.Row([
         dbc.Col(dcc.Graph(id="start-city-forecast"), width=6),
         dbc.Col(dcc.Graph(id="end-city-forecast"), width=6),
-    ])
+    ]),
 ])
 
 @dash_app.callback(
-    [Output("start-city-forecast", "figure"), Output("end-city-forecast", "figure")],
+    [Output("start-city-forecast", "figure"), Output("end-city-forecast", "figure"), Output("error-message", "children")],
     [Input("submit-button", "n_clicks")],
     [Input("start-city-input", "value"), Input("end-city-input", "value"),
      Input("interval-dropdown", "value"), Input("metric-dropdown", "value")]
 )
 def update_graphs(n_clicks, start_city, end_city, interval, selected_metric):
     if not start_city or not end_city:
-        return {}, {}
+        return {}, {}, "Please enter both start and end cities."
 
     start_location_key, start_error = coordinates_by_city(start_city)
     if start_error or not start_location_key:
-        return {}, {}
+        return {}, {}, f"Error with start city: {start_error}"
 
     end_location_key, end_error = coordinates_by_city(end_city)
     if end_error or not end_location_key:
-        return {}, {}
+        return {}, {}, f"Error with end city: {end_error}"
 
     start_data, start_error = get_weather_data(start_location_key, interval)
     if start_error or not start_data:
-        return {}, {}
+        return {}, {}, f"Error fetching start city data: {start_error}"
 
     end_data, end_error = get_weather_data(end_location_key, interval)
     if end_error or not end_data:
-        return {}, {}
+        return {}, {}, f"Error fetching end city data: {end_error}"
 
     start_dates = [day["date"] for day in start_data]
     start_values = [day[selected_metric] for day in start_data]
@@ -141,7 +140,7 @@ def update_graphs(n_clicks, start_city, end_city, interval, selected_metric):
         "layout": {"title": f"Forecast for {end_city} ({interval} days)"}
     }
 
-    return start_figure, end_figure
+    return start_figure, end_figure, ""
 
 if __name__ == '__main__':
     app.run(debug=True)
